@@ -1,38 +1,17 @@
 <template>
   <div id="app">
-    <Login></Login>
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">Abou</router-link>
-    </div>
-    <router-view /> -->
+    <!-- <LoginLayout></LoginLayout> -->
+    <router-view></router-view>
   </div>
 </template>
 <script>
-import Login from "@c/Login";
+// import LoginLayout from "@c/Login/LoginLayout";
 export default {
-  components: { Login }
+  // components: { LoginLayout }
 };
 </script>
 <style lang="less">
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+  height: 100%;
 }
 </style>

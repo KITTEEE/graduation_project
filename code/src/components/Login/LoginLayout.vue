@@ -1,22 +1,18 @@
 <template>
-  <div id="userLayout"
-       :class="['user-layout-wrapper']">
+  <div id="userLayout" :class="['user-layout-wrapper']">
     <div class="container">
       <div class="top">
         <div class="header">
           <a href="/">
-            <img src="~@/assets/logo.svg"
-                 class="logo"
-                 alt="logo">
-            <span class="title">Ant Design</span>
+            <img src="~@/assets/logo.svg" class="logo" alt="logo" />
+            <span class="title">EasyPaper</span>
           </a>
         </div>
         <div class="desc">
-          Ant Design 是西湖区最具影响力的 Web 设计规范
+          EasyPaper , 基于 Vue 和 Node 的在线期刊投稿系统
         </div>
       </div>
-
-      <route-view></route-view>
+      <router-view></router-view>
 
       <div class="footer">
         <div class="links">
@@ -32,9 +28,10 @@
   </div>
 </template>
 <script>
+// import Login from "@c/Login/Login";
 export default {
-
-}
+  // components: { Login }
+};
 </script>
 
 <style lang="less">
