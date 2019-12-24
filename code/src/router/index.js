@@ -1,11 +1,17 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import LoginLayout from "@c/Login/LoginLayout";
+import LoginLayout from "@views/LoginLayout";
+import BasicLayout from "@views/BasicLayout";
+import About from "@views/About";
 import Login from "@c/Login/Login";
 import Register from "@c/Login/Register";
-// import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
+
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};
 
 const routes = [
   { path: "/", redirect: "/login" },
@@ -29,6 +35,17 @@ const routes = [
         // component: () => {
         //   import("@c/Login/Register");
         // }
+      }
+    ]
+  },
+  {
+    path: "/index",
+    component: BasicLayout,
+    children: [
+      {
+        path: "/index/about",
+        name: "about",
+        component: About
       }
     ]
   },

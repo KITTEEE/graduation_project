@@ -40,6 +40,13 @@ module.exports = {
       }
     }
   }),
+  css: {
+    loaderOptions: {
+      less: {
+        javascriptEnabled: true
+      }
+    }
+  },
   // 第三方插件配置
   pluginOptions: {
     "style-resources-loader": {
