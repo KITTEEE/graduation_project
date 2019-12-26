@@ -12,7 +12,7 @@
         :tabBarStyle="{ textAlign: 'center', borderBottom: 'unset' }"
         @change="handleTabClick"
       >
-        <a-tab-pane key="tab1" tab="账号密码登录">
+        <a-tab-pane key="tab1" tab="手机号密码登录">
           <a-alert
             v-if="isLoginError"
             type="error"
@@ -66,7 +66,7 @@
             </a-input>
           </a-form-item>
         </a-tab-pane>
-        <a-tab-pane key="tab2" tab="手机号登录">
+        <a-tab-pane key="tab2" tab="手机验证码登录">
           <a-form-item>
             <a-input
               size="large"
@@ -237,43 +237,49 @@ export default {
       this.customActiveKey = key;
       // this.form.resetFields()
     },
-    handleSubmit(e) {
-      e.preventDefault();
-      const {
-        form: { validateFields },
-        state,
-        customActiveKey,
-        Login
-      } = this;
-
-      state.loginBtn = true;
-
-      const validateFieldsKey =
-        customActiveKey === "tab1"
-          ? ["username", "password"]
-          : ["mobile", "captcha"];
-
-      validateFields(validateFieldsKey, { force: true }, (err, values) => {
-        if (!err) {
-          console.log("login form", values);
-          const loginParams = { ...values };
-          delete loginParams.username;
-          loginParams[!state.loginType ? "email" : "username"] =
-            values.username;
-          loginParams.password = md5(values.password);
-          Login(loginParams)
-            .then(res => this.loginSuccess(res))
-            .catch(err => this.requestFailed(err))
-            .finally(() => {
-              state.loginBtn = false;
-            });
-        } else {
-          setTimeout(() => {
-            state.loginBtn = false;
-          }, 600);
-        }
+    handleSubmit() {
+      localStorage.setItem("userRole", "user");
+      this.$router.push({
+        path: "/index"
       });
     },
+    // handleSubmit(e) {
+    //   e.preventDefault();
+    //   const {
+    //     form: { validateFields },
+    //     state,
+    //     customActiveKey,
+    //     Login
+    //   } = this;
+
+    //   state.loginBtn = true;
+
+    //   const validateFieldsKey =
+    //     customActiveKey === "tab1"
+    //       ? ["username", "password"]
+    //       : ["mobile", "captcha"];
+
+    //   validateFields(validateFieldsKey, { force: true }, (err, values) => {
+    //     if (!err) {
+    //       console.log("login form", values);
+    //       const loginParams = { ...values };
+    //       delete loginParams.username;
+    //       loginParams[!state.loginType ? "email" : "username"] =
+    //         values.username;
+    //       loginParams.password = md5(values.password);
+    //       Login(loginParams)
+    //         .then(res => this.loginSuccess(res))
+    //         .catch(err => this.requestFailed(err))
+    //         .finally(() => {
+    //           state.loginBtn = false;
+    //         });
+    //     } else {
+    //       setTimeout(() => {
+    //         state.loginBtn = false;
+    //       }, 600);
+    //     }
+    //   });
+    // },
     getCaptcha(e) {
       e.preventDefault();
       const {
@@ -331,9 +337,9 @@ export default {
       this.$router.push({ name: 'analysis' }, () => {
         console.log('onComplete')
         this.$notification.success({
-          message: '欢迎',
+          message: '欢迎'
+        }),
           description: `${timeFix()}，欢迎回来`
-        })
       })
       */
       this.$router.push({ path: "/" });

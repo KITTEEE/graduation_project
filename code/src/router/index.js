@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import LoginLayout from "@views/LoginLayout";
 import BasicLayout from "@views/BasicLayout";
 import About from "@views/About";
+import Home from "@views/Home";
 import Login from "@c/Login/Login";
 import Register from "@c/Login/Register";
 
@@ -13,57 +14,50 @@ VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err);
 };
 
-const routes = [
-  { path: "/", redirect: "/login" },
+// 固定的路由表
+export const fixedRouter = [
   {
-    path: "/login",
-    name: "LoginLayout",
+    path: "",
     component: LoginLayout,
+    redirect: "/login",
     children: [
       {
         path: "/login",
         name: "login",
         component: Login
-        // component: () => {
-        //   import("@c/Login/Login");
-        // }
       },
       {
         path: "/register",
         name: "register",
         component: Register
-        // component: () => {
-        //   import("@c/Login/Register");
-        // }
       }
     ]
   },
   {
     path: "/index",
-    component: BasicLayout,
-    children: [
-      {
-        path: "/index/about",
-        name: "about",
-        component: About
-      }
-    ]
+    component: BasicLayout
+  }
+];
+// 需要权限判断展示的路由
+export const permissionRouter = [
+  {
+    path: "/index/about",
+    name: "about",
+    component: About,
+    meta: { title: "用户页面", roles: ["user"] }
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+    path: "/index/home",
+    name: "home",
+    component: Home,
+    meta: { title: "管理员页面", roles: ["admin"] }
   }
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes: fixedRouter
 });
 
 export default router;
