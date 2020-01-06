@@ -1,20 +1,23 @@
 <template>
   <a-layout id="components-layout-demo-custom-trigger">
-    <a-layout-sider :trigger="null"
-                    collapsible
-                    v-model="collapsed"
-                    width="256px">
+    <a-layout-sider
+      :trigger="null"
+      collapsible
+      v-model="collapsed"
+      width="256px"
+    >
       <div class="logo">
         <a href="">
-          <img src="~@/assets/logo.svg?inline"
-               alt="" />
+          <img src="~@/assets/logo.svg?inline" alt="" />
           <h1 v-if="!collapsed">Easy Paper</h1>
         </a>
       </div>
-      <a-menu :defaultSelectedKeys="['1']"
-              mode="inline"
-              theme="dark"
-              :inlineCollapsed="collapsed">
+      <a-menu
+        :defaultSelectedKeys="['1']"
+        mode="inline"
+        theme="dark"
+        :inlineCollapsed="collapsed"
+      >
         <sideMenus :routes="getRoutes"></sideMenus>
         <!-- <a-sub-menu key="sub1">
           <span slot="title">
@@ -53,16 +56,20 @@
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0">
-        <a-icon class="trigger"
-                :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-                @click="() => (collapsed = !collapsed)" />
+        <a-icon
+          class="trigger"
+          :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+          @click="() => (collapsed = !collapsed)"
+        />
       </a-layout-header>
-      <a-layout-content :style="{
+      <a-layout-content
+        :style="{
           margin: '16px 16px',
           padding: '24px',
           background: '#fff',
           minHeight: '280px'
-        }">
+        }"
+      >
         <router-view></router-view>
       </a-layout-content>
     </a-layout>
@@ -77,17 +84,17 @@ export default {
   components: {
     sideMenus
   },
-  data () {
+  data() {
     return {
       collapsed: false
     };
   },
   computed: {
-    getRoutes () {
+    getRoutes() {
       return global.antRouter;
     }
   },
-  created () {
+  created() {
     // console.log(permissionRouter);
   }
   // watch: {
