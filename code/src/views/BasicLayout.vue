@@ -11,7 +11,7 @@
                 <!-- <sideMenus :routes="getRoutes"></sideMenus> -->
                 <a-sub-menu v-for="item in getRoutes" :key="item.meta.key">
                     <span slot="title">
-                        <a-icon type="mail" />
+                        <a-icon :type="item.meta.icon" />
                         <span>{{ item.meta.title }}</span>
                     </span>
                     <a-menu-item v-for="data in item.children" :key="data.name" @click="$router.push({ path: data.path })">
@@ -31,18 +31,21 @@
                         </span>
                         <a-menu slot="overlay">
                             <a-menu-item key="0">
-                                <a-icon type="user" />
-                                <span>个人信息</span>
+                                <a href="javascript:;" @click="toInfo">
+                                    <a-icon type="user" style="margin-right:10px" />
+                                    <span>我的</span>
+                                </a>
                             </a-menu-item>
                             <a-menu-item key="1">
-                                <a-icon type="setting" />
-                                <span>账户设置</span>
+                                <a href="javascript:;" @click="toSetting">
+                                    <a-icon type="setting" style="margin-right:10px" />
+                                    <span>个人设置</span>
+                                </a>
                             </a-menu-item>
-
                             <a-menu-divider />
                             <a-menu-item key="3">
                                 <a href="javascript:;" @click="handleLogout">
-                                    <a-icon type="logout" />
+                                    <a-icon type="logout" style="margin-right:10px" />
                                     <span>退出登录</span>
                                 </a>
                             </a-menu-item>
@@ -74,17 +77,27 @@ export default {
     // },
     data() {
         return {
-            openKeys: ['sub1', 'sub2', 'sub3'],
+            openKeys: ['sub1', 'sub2', 'sub3', 'sub4', 'sub5'],
             collapsed: false
         };
     },
     methods: {
-        handleLogout() {}
+        handleLogout() {
+            localStorage.setItem('userRole', 'unload');
+            // 跳转到登录页的时候顺便刷新
+            window.location.href = window.location.origin + window.location.pathname;
+        },
+        toInfo() {
+            this.$router.push({ path: '/index/info' });
+        },
+        toSetting() {
+            this.$router.push({ path: '/index/setting' });
+        }
     },
     computed: {
         getRoutes() {
             // console.log();
-            var routes = global.antRouter.slice(2);
+            var routes = global.antRouter.slice(1);
             console.log(routes);
             return routes;
         }
