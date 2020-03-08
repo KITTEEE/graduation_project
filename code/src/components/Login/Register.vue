@@ -203,7 +203,7 @@ export default {
                     console.log('noerr');
                     this.registerBtn = true;
                     this.$axios
-                        .post('http://localhost:8000/api/users/register', values)
+                        .post(`${this.$backEnd}/api/users/register`, values)
                         .then(res => {
                             console.log('注册接口', res);
                             this.registerBtn = false;

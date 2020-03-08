@@ -93,7 +93,7 @@ export default {
             this.form.validateFields({ first: true, force: true }, (err, values) => {
                 if (!err) {
                     console.log(values);
-                    this.$axios.post('http://localhost:8000/api/users/login', values).then(res => {
+                    this.$axios.post(`${this.$backEnd}/api/users/login`, values).then(res => {
                         if (res.data.errno == 0) {
                             this.setUserInfo(res.data.data);
                             const role = res.data.data.role;

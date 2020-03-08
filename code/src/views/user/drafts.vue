@@ -34,7 +34,7 @@ export default {
     methods: {
         getPaperList() {
             const uid = localStorage.getItem('uid');
-            this.$axios.get(`http://localhost:8000/api/paper/list?uid=${uid}`).then(res => {
+            this.$axios.get(`${this.$backEnd}/api/paper/list?uid=${uid}`).then(res => {
                 const list = res.data;
                 this.draftList = list.filter(item => {
                     return item.state == 0;
@@ -50,7 +50,7 @@ export default {
         },
         deleteDraft(item) {
             const { pid } = item;
-            this.$axios.post(`http://localhost:8000/api/paper/delete`, { pid }).then(res => {
+            this.$axios.post(`${this.$backEnd}/api/paper/delete`, { pid }).then(res => {
                 console.log(res);
                 if (res.data.errno == 0) {
                     this.$message.success(res.data.message);

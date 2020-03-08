@@ -124,7 +124,7 @@ export default {
     align-items: center;
     font-weight: 700;
     margin-bottom: 30px;
-    width: 8%;
+    width: 15%;
 }
 .opnion {
     color: grey;
