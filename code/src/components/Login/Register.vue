@@ -6,11 +6,11 @@
                 <a-input
                     size="large"
                     type="text"
-                    placeholder="账户: admin"
+                    placeholder="请输入账号或名称"
                     v-decorator="[
                         'username',
                         {
-                            rules: [{ required: true, message: '请输入帐户名或邮箱地址' }, { validator: handleUsernameOrEmail }],
+                            rules: [{ required: true, message: '用户名不能为空' }],
                             validateTrigger: 'change'
                         }
                     ]"
@@ -28,10 +28,7 @@
                     v-decorator="[
                         'password',
                         {
-                            rules: [
-                                { required: true, message: '至少6位密码，区分大小写' },
-                                { validator: this.handlePasswordLevel }
-                            ],
+                            rules: [{ required: true, message: '请输入密码' }, { validator: this.handlePasswordCheck }],
                             validateTrigger: ['change', 'blur']
                         }
                     ]"
@@ -46,14 +43,19 @@
                     v-decorator="[
                         'password2',
                         {
-                            rules: [
-                                { required: true, message: '至少6位密码，区分大小写' },
-                                { validator: this.handlePasswordCheck }
-                            ],
+                            rules: [{ required: true, message: '请输入密码' }, { validator: this.handlePasswordCheck2 }],
                             validateTrigger: ['change', 'blur']
                         }
                     ]"
                 ></a-input>
+            </a-form-item>
+            <a-form-item>
+                <span style="display:block">请选择您的角色:</span>
+                <a-radio-group
+                    :options="options"
+                    @change="onRadioChange"
+                    v-decorator="['role', { rules: [{ required: true, message: '请选择您的角色' }] }]"
+                />
             </a-form-item>
             <a-form-item>
                 <a-button
@@ -75,7 +77,10 @@
 <script>
 // import { mixinDevice } from "@/utils/mixin.js";
 // import { getSmsCaptcha } from "@/api/login";
-
+const options = [
+    { label: '投稿人', value: 'contributor' },
+    { label: '审稿人', value: 'editor' }
+];
 const levelNames = {
     0: '低',
     1: '低',
@@ -100,8 +105,9 @@ export default {
     // mixins: [mixinDevice],
     data() {
         return {
+            options,
+            radioValue: 'contributer',
             form: this.$form.createForm(this),
-
             state: {
                 time: 60,
                 smsSendBtn: false,
@@ -125,6 +131,9 @@ export default {
         }
     },
     methods: {
+        onRadioChange(e) {
+            console.log(this.radioValue);
+        },
         handlePasswordLevel(rule, value, callback) {
             let level = 0;
 
@@ -156,8 +165,19 @@ export default {
         },
 
         handlePasswordCheck(rule, value, callback) {
+            const password2 = this.form.getFieldValue('password2');
+            if (value === undefined) {
+                callback(new Error('请输入密码'));
+            }
+            if (value && password2 && value.trim() !== password2.trim()) {
+                callback(new Error('两次密码不一致'));
+            }
+            callback();
+        },
+
+        handlePasswordCheck2(rule, value, callback) {
             const password = this.form.getFieldValue('password');
-            console.log('value', value);
+            // console.log('value', value);
             if (value === undefined) {
                 callback(new Error('请输入密码'));
             }
@@ -167,19 +187,7 @@ export default {
             callback();
         },
 
-        handlePhoneCheck(rule, value, callback) {
-            console.log('handlePhoneCheck, rule:', rule);
-            console.log('handlePhoneCheck, value', value);
-            console.log('handlePhoneCheck, callback', callback);
-
-            callback();
-        },
-
         handlePasswordInputClick() {
-            if (!this.isMobile()) {
-                this.state.passwordLevelChecked = true;
-                return;
-            }
             this.state.passwordLevelChecked = false;
         },
 
@@ -189,65 +197,50 @@ export default {
                 state,
                 $router
             } = this;
-            validateFields({ force: true }, (err, values) => {
+            // console.log(this.form.getFieldsValue());
+            validateFields({ first: true, force: true }, (err, values) => {
                 if (!err) {
-                    state.passwordLevelChecked = false;
-                    $router.push({ name: 'registerResult', params: { ...values } });
+                    console.log('noerr');
+                    this.registerBtn = true;
+                    this.$axios
+                        .post('http://localhost:8000/api/users/register', values)
+                        .then(res => {
+                            console.log('注册接口', res);
+                            this.registerBtn = false;
+                            if (res.data.errno == 0) {
+                                this.$success({
+                                    title: '注册成功',
+                                    // JSX support
+                                    okText: '立即登录',
+                                    closable: true,
+                                    onOk: () => {
+                                        console.log('ok');
+                                        this.$router.push({ name: 'login' });
+                                    }
+                                });
+                            } else if (res.data.errno == -1) {
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .finally(() => {
+                            if (this.registerBtn) {
+                                this.registerBtn = false;
+                            }
+                        });
                 }
             });
-        },
-
-        getCaptcha(e) {
-            e.preventDefault();
-            const {
-                form: { validateFields },
-                state,
-                $message,
-                $notification
-            } = this;
-
-            validateFields(['mobile'], { force: true }, (err, values) => {
-                if (!err) {
-                    state.smsSendBtn = true;
-
-                    const interval = window.setInterval(() => {
-                        if (state.time-- <= 0) {
-                            state.time = 60;
-                            state.smsSendBtn = false;
-                            window.clearInterval(interval);
-                        }
-                    }, 1000);
-
-                    const hide = $message.loading('验证码发送中..', 0);
-
-                    // getSmsCaptcha({ mobile: values.mobile })
-                    //   .then(res => {
-                    //     setTimeout(hide, 2500);
-                    //     $notification["success"]({
-                    //       message: "提示",
-                    //       description:
-                    //         "验证码获取成功，您的验证码为：" + res.result.captcha,
-                    //       duration: 8
-                    //     });
-                    //   })
-                    //   .catch(err => {
-                    //     setTimeout(hide, 1);
-                    //     clearInterval(interval);
-                    //     state.time = 60;
-                    //     state.smsSendBtn = false;
-                    //     this.requestFailed(err);
-                    //   });
-                }
-            });
-        },
-        requestFailed(err) {
-            this.$notification['error']({
-                message: '错误',
-                description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
-                duration: 4
-            });
-            this.registerBtn = false;
         }
+        // requestFailed(err) {
+        //     this.$notification['error']({
+        //         message: '错误',
+        //         description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
+        //         duration: 4
+        //     });
+        //     this.registerBtn = false;
+        // }
     },
     watch: {
         'state.passwordLevel'(val) {

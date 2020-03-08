@@ -6,12 +6,12 @@
                 <a-input
                     size="large"
                     type="text"
-                    placeholder="账户: admin"
+                    placeholder="请输入用户名"
                     v-decorator="[
                         'username',
                         {
-                            rules: [{ required: true, message: '请输入帐户名或邮箱地址' }, { validator: handleUsernameOrEmail }],
-                            validateTrigger: 'change'
+                            rules: [{ required: true, message: '用户名不能为空' }],
+                            validateTrigger: ['change', 'blur']
                         }
                     ]"
                 >
@@ -23,7 +23,7 @@
                     size="large"
                     type="password"
                     autocomplete="false"
-                    placeholder="密码: admin or ant.design"
+                    placeholder="请输入密码"
                     v-decorator="[
                         'password',
                         {
@@ -37,25 +37,22 @@
             </a-form-item>
             <a-form-item>
                 <span style="display:block">请选择您的角色:</span>
-                <a-radio-group :options="options" @change="onRadioChange" v-model="radioValue" />
+                <a-radio-group
+                    :options="options"
+                    v-decorator="['role', { rules: [{ required: true, message: '请选择您的角色' }] }]"
+                />
             </a-form-item>
             <a-form-item style="margin-top:24px">
                 <a-button
                     size="large"
                     type="primary"
-                    htmlType="submit"
                     class="login-button"
+                    @click.stop.prevent="handleSubmit"
                     :loading="state.loginBtn"
                     :disabled="state.loginBtn"
                     >确定</a-button
                 >
             </a-form-item>
-            <!-- <a-form-item>
-                <a-checkbox v-decorator="['rememberMe']">自动登录</a-checkbox>
-                <router-link :to="{ name: 'recover', params: { user: 'aaa' } }" class="forge-password" style="float: right;"
-                    >忘记密码</router-link
-                >
-            </a-form-item> -->
             <div class="user-login-other">
                 <router-link class="register" :to="{ name: 'register' }">注册账户</router-link>
             </div>
@@ -64,13 +61,9 @@
 </template>
 
 <script>
-// import md5 from "md5";
-// import TwoStepCaptcha from "@/components/tools/TwoStepCaptcha";
-// import { mapActions } from "vuex";
-// import { timeFix } from "@/utils/util";
-// import { getSmsCaptcha, get2step } from "@/api/login";
+import { mapState, mapMutations } from 'vuex';
 const options = [
-    { label: '投稿人', value: 'user' },
+    { label: '投稿人', value: 'contributor' },
     { label: '审稿人', value: 'editor' },
     { label: '管理员', value: 'admin' }
 ];
@@ -81,64 +74,50 @@ export default {
     data() {
         return {
             options,
-            radioValue: 'user',
             loginBtn: false,
-            // login type: 0 email, 1 username, 2 telephone
             loginType: 0,
             isLoginError: false,
-            requiredTwoStepCaptcha: false,
-            stepCaptchaVisible: false,
             form: this.$form.createForm(this),
             state: {
                 time: 60,
                 loginBtn: false,
-                // login type: 0 email, 1 username, 2 telephone
                 loginType: 0,
                 smsSendBtn: false
             }
         };
     },
-    created() {
-        // get2step({})
-        //   .then(res => {
-        //     this.requiredTwoStepCaptcha = res.result.stepCode;
-        //   })
-        //   .catch(() => {
-        //     this.requiredTwoStepCaptcha = false;
-        //   });
-        // this.requiredTwoStepCaptcha = true
-    },
+    created() {},
     methods: {
-        // ...mapActions(["Login", "Logout"]),
-        // handler
-        handleUsernameOrEmail(rule, value, callback) {
-            const { state } = this;
-            const regex = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/;
-            if (regex.test(value)) {
-                state.loginType = 0;
-            } else {
-                state.loginType = 1;
-            }
-            callback();
-        },
+        ...mapMutations(['setUserInfo']),
         handleSubmit(e) {
-            console.log(e);
-            let role = 'editor';
-            localStorage.setItem('userRole', role);
-            if (role == 'user') {
-                this.$router.push({
-                    path: '/user'
-                });
-            } else if (role == 'editor') {
-                this.$router.push({
-                    path: '/editor'
-                });
-            } else if (role == 'admin') {
-            }
+            this.form.validateFields({ first: true, force: true }, (err, values) => {
+                if (!err) {
+                    console.log(values);
+                    this.$axios.post('http://localhost:8000/api/users/login', values).then(res => {
+                        if (res.data.errno == 0) {
+                            this.setUserInfo(res.data.data);
+                            const role = res.data.data.role;
+                            localStorage.setItem('userRole', role);
+                            localStorage.setItem('uid', res.data.data.uid);
+                            this.$message.success('登录成功');
+                            if (role == 'contributor') {
+                                this.$router.push({
+                                    path: '/user'
+                                });
+                            } else if (role == 'editor') {
+                                this.$router.push({
+                                    path: '/editor'
+                                });
+                            } else if (role == 'admin') {
+                            }
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    });
+                }
+            });
         },
-        onRadioChange(e) {
-            console.log(this.radioValue);
-        }
+        onRadioChange(e) {}
     }
 };
 </script>

@@ -6,6 +6,7 @@ import Login from '@c/Login/Login';
 import Register from '@c/Login/Register';
 // 投稿者页面
 import MyContributions from '@views/user/myContributions';
+import PaperDetail from '@views/user/paperdetail';
 import Drafts from '@views/user/drafts';
 import Delivery from '@views/user/delivery';
 import Info from '@views/user/info';
@@ -52,19 +53,28 @@ export const permissionRouter = [
         name: 'user',
         redirect: '/user/mycontribute',
         component: BasicLayout,
-        meta: { title: '稿件中心', roles: ['user'], key: 'sub1', icon: 'book' },
+        meta: { title: '稿件中心', roles: ['contributor'], key: 'sub1', icon: 'book' },
         children: [
             {
                 path: '/user/mycontribute',
                 name: 'mycontribute',
                 component: MyContributions,
-                meta: { title: '我的稿件', roles: ['user'] }
+                meta: {
+                    title: '我的稿件',
+                    roles: ['contributor']
+                }
+            },
+            {
+                path: '/user/paperdetail',
+                name: 'paperdetail',
+                component: PaperDetail,
+                meta: { title: '稿件详情', roles: ['contributor'] }
             },
             {
                 path: '/user/drafts',
                 name: 'drafts',
                 component: Drafts,
-                meta: { title: '草稿箱', roles: ['user'] }
+                meta: { title: '草稿箱', roles: ['contributor'] }
             }
         ]
     },
@@ -72,13 +82,13 @@ export const permissionRouter = [
         path: '/user',
         name: 'delivery',
         component: BasicLayout,
-        meta: { title: '投稿中心', roles: ['user'], key: 'sub2', icon: 'mail' },
+        meta: { title: '投稿中心', roles: ['contributor'], key: 'sub2', icon: 'mail' },
         children: [
             {
                 path: '/user/delivery',
                 name: 'toDelivery',
                 component: Delivery,
-                meta: { title: '我要投稿', roles: ['user'] }
+                meta: { title: '我要投稿', roles: ['contributor'] }
             }
         ]
     },
@@ -86,19 +96,19 @@ export const permissionRouter = [
         path: '/user',
         name: 'personal',
         component: BasicLayout,
-        meta: { title: '个人中心', roles: ['user'], key: 'sub3', icon: 'user' },
+        meta: { title: '个人中心', roles: ['contributor'], key: 'sub3', icon: 'user' },
         children: [
             {
                 path: '/user/info',
                 name: 'info',
                 component: Info,
-                meta: { title: '个人信息', roles: ['user'] }
+                meta: { title: '个人信息', roles: ['contributor'] }
             },
             {
                 path: '/user/setting',
                 name: 'setting',
                 component: Setting,
-                meta: { title: '个人设置', roles: ['user'] }
+                meta: { title: '个人设置', roles: ['contributor'] }
             }
         ]
     },

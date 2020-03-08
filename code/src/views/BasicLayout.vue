@@ -14,7 +14,12 @@
                         <a-icon :type="item.meta.icon" />
                         <span>{{ item.meta.title }}</span>
                     </span>
-                    <a-menu-item v-for="data in item.children" :key="data.name" @click="$router.push({ path: data.path })">
+                    <a-menu-item
+                        v-for="data in item.children"
+                        :key="data.name"
+                        @click="$router.push({ path: data.path })"
+                        v-show="data.name !== 'paperdetail'"
+                    >
                         {{ data.meta.title }}
                     </a-menu-item>
                 </a-sub-menu>
@@ -26,8 +31,13 @@
                 <div style="float:right;margin-right:50px">
                     <a-dropdown>
                         <span class="action ant-dropdown-link user-dropdown-menu">
-                            <a-avatar class="avatar" :size="30" style="margin-right:20px" />
-                            <span>Kite_Yiu</span>
+                            <a-avatar
+                                class="avatar"
+                                :size="30"
+                                style="margin-right:20px"
+                                :src="userInfo.avatar ? `${this.$backEnd}/api/static/${userInfo.avatar}` : ''"
+                            />
+                            <span>{{ userInfo.nickname }}</span>
                         </span>
                         <a-menu slot="overlay">
                             <a-menu-item key="0">
@@ -69,17 +79,28 @@
 <script>
 import { mixin, mixinDevice } from '@/utils/mixin';
 // import sideMenus from '@c/sideMenus';
+import { mapState, mapMutation } from 'vuex';
 import { permissionRouter } from '@/router/index';
 export default {
     mixins: [mixin, mixinDevice],
-    // components: {
-    //     sideMenus
-    // },
     data() {
         return {
             openKeys: ['sub1', 'sub2', 'sub3', 'sub4', 'sub5'],
             collapsed: false
         };
+    },
+    computed: {
+        ...mapState({
+            userInfo: state => state.userInfo
+        }),
+        getRoutes() {
+            var routes = global.antRouter.slice(1);
+            console.log(routes);
+            return routes;
+        }
+    },
+    created() {
+        console.log('userInfo', this.$store.state.userInfo);
     },
     methods: {
         handleLogout() {
@@ -88,28 +109,12 @@ export default {
             window.location.href = window.location.origin + window.location.pathname;
         },
         toInfo() {
-            this.$router.push({ path: '/index/info' });
+            this.$router.push({ path: '/user/info' });
         },
         toSetting() {
-            this.$router.push({ path: '/index/setting' });
+            this.$router.push({ path: '/user/setting' });
         }
-    },
-    computed: {
-        getRoutes() {
-            // console.log();
-            var routes = global.antRouter.slice(1);
-            console.log(routes);
-            return routes;
-        }
-    },
-    created() {
-        // console.log(permissionRouter);
     }
-    // watch: {
-    //   sidebarOpened (val) {
-    //     this.collapsed = !val;
-    //   }
-    // }
 };
 </script>
 <style lang="less">
