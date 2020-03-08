@@ -236,6 +236,9 @@ export default {
         font-size: 16px;
         width: 80%;
         .detail-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
             height: 40px;
             line-height: 40px;
             .item-label {

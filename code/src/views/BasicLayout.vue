@@ -34,6 +34,7 @@
                             <a-avatar
                                 class="avatar"
                                 :size="30"
+                                icon="user"
                                 style="margin-right:20px"
                                 :src="userInfo.avatar ? `${this.$backEnd}/api/static/${userInfo.avatar}` : ''"
                             />

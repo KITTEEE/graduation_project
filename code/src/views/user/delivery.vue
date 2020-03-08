@@ -39,8 +39,8 @@
                     :customRequest="fileCustomRequest"
                     :beforeUpload="beforeUpload"
                     :remove="removeFile"
-                    :defaultFileList="fileList.length > 0 ? fileList : []"
-                    @change="paperUpload"
+                    :fileList="fileList"
+                    @change="handleChange"
                     @preview="preview"
                 >
                     <p class="ant-upload-drag-icon">
@@ -82,7 +82,6 @@ export default {
             console.log('带了参数');
             const data = this.$route.query.item;
             this.pid = data.pid;
-            console.log(this.pid);
             if (data.file) {
                 this.fileList = [{ uid: '1', name: data.file, status: 'done', url: `${this.$backEnd}/api/static/${data.file}` }];
                 console.log(this.fileList);
@@ -131,13 +130,6 @@ export default {
             await this.$axios
                 .post(`${this.$backEnd}/api/paper/upload`, formData)
                 .then(res => {
-                    const obj = {
-                        uid: '1',
-                        name: res.data.filename,
-                        status: 'done',
-                        url: `${this.$backEnd}/api/static/${res.data.filename}`
-                    };
-                    this.fileList.push(obj);
                     this.$message.success(`上传成功`);
                     progress == 100;
                     options.onSuccess();
@@ -193,27 +185,45 @@ export default {
             this.form.validateFields({ first: true, force: true }, (err, values) => {
                 if (!err) {
                     for (var key in values) {
-                        if (!values[key]) {
+                        if (!values[key] || this.fileList.length == 0) {
                             this.$message.warning('请填写完整信息');
                             return;
                         }
                     }
                     let uid = localStorage.getItem('uid');
-                    let obj = { file: this.fileList[0], uid };
+                    console.log('fileList', this.fileList);
+                    let obj = { file: this.fileList[0].name, uid };
                     Object.assign(values, obj);
-                    this.$axios.post(`${this.$backEnd}/api/paper/delivery`, values).then(res => {
-                        if (res.data.errno == 0) {
-                            this.$message.success(res.data.message);
-                            this.$router.push({ name: 'mycontribute' });
-                        } else {
-                            this.$message.error(res.data.message);
-                        }
-                    });
+                    if (this.pid) {
+                        this.$axios
+                            .post(`${this.$backEnd}/api/paper/updateDraft`, Object.assign(values, { pid: this.pid, state: 1 }))
+                            .then(res => {
+                                if (res.data.errno == 0) {
+                                    this.$message.success('投递成功！');
+                                    this.$router.push({ name: 'mycontribute' });
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            });
+                    } else {
+                        console.log(values);
+                        this.$axios.post(`${this.$backEnd}/api/paper/delivery`, values).then(res => {
+                            if (res.data.errno == 0) {
+                                this.$message.success(res.data.message);
+                                this.$router.push({ name: 'mycontribute' });
+                            } else {
+                                this.$message.error(res.data.message);
+                            }
+                        });
+                    }
                 }
             });
         },
         handleSelectChange() {},
-        paperUpload() {}
+        handleChange({ fileList }) {
+            this.fileList = fileList;
+        }
     }
 };
 </script>

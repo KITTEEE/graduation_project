@@ -6,9 +6,9 @@
                 <a-skeleton :loading="loading">
                     <a-list class="demo-loadmore-list" itemLayout="horizontal" :dataSource="paperList">
                         <a-list-item slot="renderItem" slot-scope="item" v-show="item.state >= 1">
-                            <a slot="actions" @click="toDetail">查看详情</a>
-                            <a-list-item-meta description="Ant Design, a design language for background applications">
-                                <a class="item-title" slot="title" href="https://www.antdv.com/">{{ item.title }}</a>
+                            <a slot="actions" @click="toDetail(item)">查看详情</a>
+                            <a-list-item-meta :description="item.overview ? item.overview : '暂无简介'">
+                                <a class="item-title" slot="title" @click="toDetail(item)">{{ item.title }}</a>
                             </a-list-item-meta>
                             <div style="margin-right:20px">{{ item.time }}</div>
                             <div>状态: {{ item.state | state }}</div>
@@ -73,8 +73,8 @@ export default {
         changeState(state) {
             this.currState = state;
         },
-        toDetail() {
-            this.$router.push({ path: '/user/paperdetail' });
+        toDetail(item) {
+            this.$router.push({ path: '/user/paperdetail', query: { id: item.pid } });
         }
     },
     filters: {
