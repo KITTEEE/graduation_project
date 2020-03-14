@@ -4,7 +4,9 @@
             <div class="logo">
                 <a href="">
                     <img src="~@/assets/logo.svg?inline" alt="" />
-                    <h1 v-if="!collapsed">Easy Paper</h1>
+                    <h1 v-if="!collapsed">
+                        Easy Paper
+                    </h1>
                 </a>
             </div>
             <a-menu :openKeys.sync="openKeys" mode="inline" theme="dark" :inlineCollapsed="collapsed">
@@ -110,10 +112,18 @@ export default {
             window.location.href = window.location.origin + window.location.pathname;
         },
         toInfo() {
-            this.$router.push({ path: '/user/info' });
+            let userRole = localStorage.getItem('userRole');
+            if (userRole == 'contributor') {
+                userRole = 'user';
+            }
+            this.$router.push({ path: `/${userRole}/info` });
         },
         toSetting() {
-            this.$router.push({ path: '/user/setting' });
+            let userRole = localStorage.getItem('userRole');
+            if (userRole == 'contributor') {
+                userRole = 'user';
+            }
+            this.$router.push({ path: `/${userRole}/setting` });
         }
     }
 };
