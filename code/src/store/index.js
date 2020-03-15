@@ -4,9 +4,11 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-    state: {
-        userInfo: ''
-    },
+    state: sessionStorage.getItem('state')
+        ? JSON.parse(sessionStorage.getItem('state'))
+        : {
+              userInfo: ''
+          },
     mutations: {
         setUserInfo(state, value) {
             state.userInfo = value;

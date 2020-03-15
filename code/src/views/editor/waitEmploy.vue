@@ -2,22 +2,12 @@
     <div>
         <a-card :loading="loading" style="margin-top: 10px;font-size:20px" :bordered="false" title="待录用">
             <div slot="extra">
-                <!-- <a-radio-group v-model="status">
-                    <a-radio-button value="all">全部</a-radio-button>
-                    <a-radio-button value="processing">进行中</a-radio-button>
-                    <a-radio-button value="waiting">等待中</a-radio-button>
-                </a-radio-group> -->
                 <a-input-search style="margin-left: 16px; width: 272px;" />
             </div>
-            <!-- <div class="operate">
-                <a-button type="dashed" style="width: 100%" icon="plus" @click="$refs.taskForm.add()">添加</a-button>
-            </div> -->
-
-            <!-- <a-list size="large" :pagination="{ showSizeChanger: true, showQuickJumper: true, pageSize: 5, total: 50 }"> -->
             <a-list size="large">
-                <a-list-item :key="index" v-for="(item, index) in data">
-                    <a-list-item-meta :description="item.description">
-                        <a-avatar slot="avatar" size="large" shape="circle" src="" />
+                <a-list-item :key="index" v-for="(item, index) in list">
+                    <a-list-item-meta :description="item.overview">
+                        <a-avatar icon="user" slot="avatar" size="large" shape="circle" src="" />
                         <a slot="title" style="font-weight:bold">{{ item.title }}</a>
                     </a-list-item-meta>
                     <div slot="actions">
@@ -51,22 +41,20 @@
 export default {
     data() {
         return {
-            loading: false,
-            data: [
-                { title: '标题1', time: '2019-08-07', description: '嘿嘿', state: 1, author: 'KiteYiu' },
-                { title: '标题2', time: '2019-08-07', description: '嘿嘿', state: 2, author: 'KiteYiu' },
-                { title: '标题3', time: '2019-08-07', description: '嘿嘿', state: 3, author: 'KiteYiu' },
-                { title: '标题4', time: '2019-08-07', description: '嘿嘿', state: 4, author: 'KiteYiu' },
-                { title: '标题5', time: '2019-08-07', description: '嘿嘿', state: 5, author: 'KiteYiu' },
-                { title: '标题6', time: '2019-08-07', description: '嘿嘿', state: 1, author: 'KiteYiu' },
-                { title: '标题7', time: '2019-08-07', description: '嘿嘿', state: 2, author: 'KiteYiu' },
-                { title: '标题8', time: '2019-08-07', description: '嘿嘿', state: 3, author: 'KiteYiu' },
-                { title: '标题9', time: '2019-08-07', description: '嘿嘿', state: 4, author: 'KiteYiu' }
-            ]
+            loading: true,
+            list: []
         };
     },
     created() {
-        console.log('created');
+        this.$axios
+            .get(`${this.$backEnd}/api/paper/editList?state=4`)
+            .then(res => {
+                this.list = res.data;
+                this.loading = false;
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 };
 </script>
