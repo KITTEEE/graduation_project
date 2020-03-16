@@ -5,9 +5,7 @@
     </div>
 </template>
 <script>
-// import LoginLayout from "@c/Login/LoginLayout";
 export default {
-    // components: { LoginLayout }
     mounted() {
         window.addEventListener('unload', this.saveState);
     },

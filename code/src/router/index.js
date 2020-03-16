@@ -7,6 +7,7 @@ import Register from '@c/Login/Register';
 // 投稿者页面
 import MyContributions from '@views/user/myContributions';
 import PaperDetail from '@views/user/paperdetail';
+import EditPaperDetail from '@views/editor/paperdetail';
 import Drafts from '@views/user/drafts';
 import Delivery from '@views/user/delivery';
 import Info from '@views/user/info';
@@ -15,6 +16,7 @@ import Setting from '@views/user/Setting';
 import FstCheck from '@views/editor/fstCheck';
 import SecCheck from '@views/editor/secCheck';
 import WaitEmploy from '@views/editor/waitEmploy';
+import HasEmploy from '@views/editor/hasEmploy';
 import EditorInfo from '@views/editor/editorInfo';
 import EditorSetting from '@views/editor/editorSetting';
 
@@ -128,6 +130,12 @@ export const permissionRouter = [
                 meta: { title: '待初审', roles: ['editor'] }
             },
             {
+                path: '/editor/paperdetail',
+                name: 'paperdetail',
+                component: EditPaperDetail,
+                meta: { title: '稿件详情', roles: ['editor'] }
+            },
+            {
                 path: '/editor/secCheck',
                 name: 'secCheck',
                 component: SecCheck,
@@ -138,6 +146,12 @@ export const permissionRouter = [
                 name: 'waitEmploy',
                 component: WaitEmploy,
                 meta: { title: '待录用', roles: ['editor'] }
+            },
+            {
+                path: '/editor/hasEmploy',
+                name: 'hasEmploy',
+                component: HasEmploy,
+                meta: { title: '已录用', roles: ['editor'] }
             }
         ]
     },

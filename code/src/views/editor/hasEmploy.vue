@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-card :loading="loading" style="margin-top: 10px;font-size:20px" :bordered="false" title="待初审">
+        <a-card :loading="loading" style="margin-top: 10px;font-size:20px" :bordered="false" title="已录用">
             <div slot="extra">
                 <a-input-search style="margin-left: 16px; width: 272px;" />
             </div>
@@ -90,7 +90,7 @@ export default {
             this.$router.push({ path: '/editor/paperdetail', query: { id: item.pid } });
         },
         pass(item) {
-            this.changeState(item.pid, 3);
+            this.changeState(item.pid, 5);
         },
         returnBack(item) {
             this.item = item;
@@ -109,7 +109,7 @@ export default {
         },
         getList() {
             this.$axios
-                .get(`${this.$backEnd}/api/paper/editList?state=1`)
+                .get(`${this.$backEnd}/api/paper/editList?state=5`)
                 .then(res => {
                     console.log(res);
                     this.list = res.data;
