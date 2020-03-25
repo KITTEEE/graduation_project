@@ -68,9 +68,6 @@ const options = [
     { label: '管理员', value: 'admin' }
 ];
 export default {
-    // components: {
-    //   TwoStepCaptcha
-    // },
     data() {
         return {
             options,
@@ -109,6 +106,9 @@ export default {
                                     path: '/editor'
                                 });
                             } else if (role == 'admin') {
+                                this.$router.push({
+                                    path: '/admin'
+                                });
                             }
                         } else {
                             this.$message.error(res.data.message);

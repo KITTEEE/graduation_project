@@ -20,6 +20,12 @@ import HasEmploy from '@views/editor/hasEmploy';
 import EditorInfo from '@views/editor/editorInfo';
 import EditorSetting from '@views/editor/editorSetting';
 
+// 管理员界面
+import Commitor from '@views/admin/commitor';
+import Editor from '@views/admin/editor';
+import Paper from '@views/admin/paper';
+import Power from '@views/admin/power';
+import Person from '@views/admin/person';
 Vue.use(VueRouter);
 
 const originalPush = VueRouter.prototype.push;
@@ -173,6 +179,63 @@ export const permissionRouter = [
                 name: 'editorSetting',
                 component: EditorSetting,
                 meta: { title: '个人设置', roles: ['editor'] }
+            }
+        ]
+    },
+
+    // 管理员路由
+    {
+        path: '/admin',
+        name: 'admin',
+        redirect: '/admin/commitor',
+        component: BasicLayout,
+        meta: { title: '用户管理', roles: ['admin'], key: 'sub6', icon: 'user' },
+        children: [
+            {
+                path: '/admin/commitor',
+                name: 'commitor',
+                component: Commitor,
+                meta: { title: '投稿人管理', roles: ['admin'] }
+            },
+            {
+                path: '/admin/editor',
+                name: 'editor',
+                component: Editor,
+                meta: { title: '审稿人管理', roles: ['admin'] }
+            }
+        ]
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: BasicLayout,
+        meta: { title: '稿件管理', roles: ['admin'], key: 'sub7', icon: 'user' },
+        children: [
+            {
+                path: '/admin/paper',
+                name: 'paper',
+                component: Paper,
+                meta: { title: '稿件管理', roles: ['admin'] }
+            }
+        ]
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: BasicLayout,
+        meta: { title: '个人管理', roles: ['admin'], key: 'sub8', icon: 'user' },
+        children: [
+            {
+                path: '/admin/power',
+                name: 'power',
+                component: Power,
+                meta: { title: '权限管理', roles: ['admin'] }
+            },
+            {
+                path: '/admin/person',
+                name: 'person',
+                component: Person,
+                meta: { title: '个人管理', roles: ['admin'] }
             }
         ]
     }

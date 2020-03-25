@@ -88,7 +88,7 @@ export default {
     mixins: [mixin, mixinDevice],
     data() {
         return {
-            openKeys: ['sub1', 'sub2', 'sub3', 'sub4', 'sub5'],
+            openKeys: ['sub1', 'sub2', 'sub3', 'sub4', 'sub5', 'sub6', 'sub7', 'sub8', 'sub9'],
             collapsed: false
         };
     },
