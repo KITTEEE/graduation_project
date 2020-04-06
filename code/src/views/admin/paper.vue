@@ -68,40 +68,107 @@
                         </a-form-item>
                     </a-col>
                 </a-row>
+                <a-row type="flex" justify="start">
+                    <a-col :span="24">
+                        <a-form-item label="稿件" :label-col="{ span: 3 }" :wrapper-col="{ span: 18 }">
+                            <a :href="`${this.$backEnd}/api/static/${editFile}`" target="_blank">{{ editFile }}</a>
+                            <a :href="`${this.$backEnd}/api/paper/download?filename=${editFile}`" style="margin-left:30px"
+                                >下载</a
+                            >
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+                <a-divider orientation="left">用户相关</a-divider>
+                <a-row :gutter="48">
+                    <a-col :md="12" :sm="24">
+                        <a-form-item label="所属用户" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
+                            <a-input v-decorator="['uid']" />
+                        </a-form-item>
+                    </a-col>
+                    <a-col :md="12" :sm="24">
+                        <a-form-item label="联系方式" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
+                            <a-input v-decorator="['concat']" />
+                        </a-form-item>
+                    </a-col>
+                </a-row>
             </a-form>
         </a-modal>
-        <a-modal v-model="newVisible" title="新增审稿人" okText="确认添加" cancelText="取消" @ok="addNew" :width="700">
+        <a-modal v-model="newVisible" title="新增稿件" okText="确认添加" cancelText="取消" @ok="addNew" :width="700">
             <a-form :form="newForm" @submit="addNew">
-                <a-form-item label="默认昵称" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
-                    <a-input v-decorator="['nickname']" placeholder="用户 nickname" />
-                </a-form-item>
-                <a-form-item label="审稿人职位" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
-                    <a-select placeholder="请选择" default-value="editor">
-                        <a-select-option value="editor">编辑</a-select-option>
-                        <a-select-option value="profess">专家</a-select-option>
-                    </a-select>
-                </a-form-item>
-                <a-form-item label="默认账户名" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
+                <a-form-item label="稿件所属用户" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-input
                         v-decorator="[
-                            'username',
+                            'uid',
                             {
-                                rules: [{ required: true, message: '用户名不能为空' }]
+                                rules: [{ required: true, message: '所属用户ID不能为空' }]
                             }
                         ]"
-                        placeholder="用户的登录账号"
+                        placeholder="投稿人ID"
                     />
                 </a-form-item>
-                <a-form-item label="原始密码" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
+                <a-form-item label="标题" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
                     <a-input
                         v-decorator="[
-                            'password',
+                            'author',
                             {
-                                rules: [{ required: true, message: '密码不能为空' }]
+                                rules: [{ required: true, message: '标题不能为空' }]
                             }
                         ]"
-                        placeholder="用户的登录密码"
+                        placeholder="稿件标题"
                     />
+                </a-form-item>
+                <a-form-item label="作者" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-input
+                        v-decorator="[
+                            'title',
+                            {
+                                rules: [{ required: true, message: '作者不能为空' }]
+                            }
+                        ]"
+                        placeholder="稿件作者"
+                    />
+                </a-form-item>
+                <a-form-item label="概述" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-input
+                        v-decorator="[
+                            'overview',
+                            {
+                                rules: [{ required: true, message: '概述不能为空' }]
+                            }
+                        ]"
+                        placeholder="稿件概述"
+                    />
+                </a-form-item>
+                <a-form-item label="分类" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-input v-decorator="['categroy']" placeholder="稿件类别" />
+                </a-form-item>
+                <a-form-item label="联系方式" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-input v-decorator="['concat']" placeholder="稿件作者的联系方式" />
+                </a-form-item>
+                <a-form-item label="概述" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-input v-decorator="['overview']" placeholder="稿件概述" />
+                </a-form-item>
+                <a-form-item label="上传稿件" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-upload-dragger
+                        name="file"
+                        :multiple="true"
+                        :customRequest="fileCustomRequest"
+                        :beforeUpload="beforeUpload"
+                        :remove="removeFile"
+                        :fileList="fileList"
+                        @change="handleChange"
+                    >
+                        <p class="ant-upload-drag-icon">
+                            <a-icon type="inbox" />
+                        </p>
+                        <p class="ant-upload-text">
+                            点击或拖动图片上传稿件
+                        </p>
+                        <p class="ant-upload-hint">
+                            稿件大小不得超过 5MB
+                        </p>
+                    </a-upload-dragger>
+                    <!-- <a :href="`${this.$backEnd}/api/static/中小型在线投稿系统的设计与实现_肖光华.pdf`">111</a> -->
                 </a-form-item>
             </a-form>
         </a-modal>
@@ -176,7 +243,9 @@ export default {
             list: [],
             editVisible: false,
             newVisible: false,
-            editPaper: ''
+            editPaper: '',
+            fileList: [],
+            editFile: ''
         };
     },
     created() {
@@ -227,9 +296,10 @@ export default {
         },
         showEdit(paper) {
             this.editPaper = paper;
-            const { pid, title, author, state, uid, overview, file } = this.editPaper;
+            const { pid, title, author, state, uid, overview, file, concat } = this.editPaper;
             this.editVisible = true;
             this.$nextTick(() => {
+                this.editFile = file;
                 const obj = {
                     pid,
                     title,
@@ -237,7 +307,8 @@ export default {
                     state,
                     uid,
                     overview,
-                    file
+                    file,
+                    concat
                 };
                 this.editForm.setFieldsValue(obj);
             });
@@ -275,6 +346,51 @@ export default {
                 default:
                     break;
             }
+        },
+        beforeUpload(file, fileList) {
+            const reg = /\.(doc|docx|pdf|caj)(\?.*)?$/;
+            return new Promise((resolve, reject) => {
+                if (this.fileList.length > 0) {
+                    this.$message.error('只能上传一个文件');
+                    reject('只能上传一个文件');
+                }
+                if (reg.test(file.name)) {
+                    resolve();
+                } else {
+                    this.$message.error(`请上传正确的文件格式`);
+                    reject(new Error('请上传正确的文件格式'));
+                }
+            });
+        },
+        async fileCustomRequest(options) {
+            console.log('options', options);
+            const formData = new FormData();
+            formData.append('file', options.file);
+            let progress = { percent: 1 };
+            const intervalId = setInterval(() => {
+                if (progress.percent < 100) {
+                    progress.percent++;
+                    options.onProgress(progress);
+                } else {
+                    clearInterval(intervalId);
+                }
+            }, 100);
+            await this.$axios
+                .post(`${this.$backEnd}/api/paper/upload`, formData)
+                .then(res => {
+                    this.$message.success(`上传成功`);
+                    progress == 100;
+                    options.onSuccess();
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        },
+        removeFile(file) {
+            this.fileList.pop();
+        },
+        handleChange({ fileList }) {
+            this.fileList = fileList;
         }
     }
 };

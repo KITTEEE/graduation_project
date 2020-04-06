@@ -53,6 +53,14 @@
                 >
             </div>
         </a-card>
+        <a-row type="flex" justify="space-around" style="margin-top:30px">
+            <a-col>
+                <a-button type="primary" size="large" @click="editPaper"> 修改稿件 </a-button>
+            </a-col>
+            <a-col>
+                <a-button type="danger" size="large" @click="backPaper"> 撤回稿件 </a-button>
+            </a-col>
+        </a-row>
     </div>
 </template>
 <script>
@@ -109,7 +117,20 @@ export default {
                 this.status = 'finish';
             }
             console.log(this.current);
-        }
+        },
+        editPaper() {
+            this.$confirm({
+                title: '您确定要撤回该稿件吗',
+                content: '撤回后的稿件将变为草稿状态',
+                okText: '撤回稿件',
+                cancelText: '取消',
+                onOk() {
+                    this.$message('撤回成功');
+                },
+                onCancel() {}
+            });
+        },
+        backPaper() {}
     }
 };
 </script>
