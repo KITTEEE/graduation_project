@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 const options = [
     { label: '投稿人', value: 'contributor' },
     { label: '审稿人', value: 'editor' },
@@ -86,30 +86,38 @@ export default {
     created() {},
     methods: {
         ...mapMutations(['setUserInfo']),
+        ...mapActions(['getPower']),
         handleSubmit(e) {
             this.form.validateFields({ first: true, force: true }, (err, values) => {
                 if (!err) {
                     console.log(values);
-                    this.$axios.post(`${this.$backEnd}/api/users/login`, values).then(res => {
+                    this.$axios.post(`${this.$backEnd}/api/users/login`, values).then(async res => {
                         if (res.data.errno == 0) {
                             this.setUserInfo(res.data.data);
                             const role = res.data.data.role;
                             localStorage.setItem('userRole', role);
                             localStorage.setItem('uid', res.data.data.uid);
-                            this.$message.success('登录成功');
-                            if (role == 'contributor') {
-                                this.$router.push({
-                                    path: '/user'
+                            await this.getPower(res.data.data.uid)
+                                .then(res => {
+                                    console.log(this.$store.state.power);
+                                    this.$message.success('登录成功');
+                                    if (role == 'contributor') {
+                                        this.$router.push({
+                                            path: '/user'
+                                        });
+                                    } else if (role == 'editor') {
+                                        this.$router.push({
+                                            path: '/editor'
+                                        });
+                                    } else if (role == 'admin') {
+                                        this.$router.push({
+                                            path: '/admin'
+                                        });
+                                    }
+                                })
+                                .catch(err => {
+                                    this.$message.error('登录失败，请重试');
                                 });
-                            } else if (role == 'editor') {
-                                this.$router.push({
-                                    path: '/editor'
-                                });
-                            } else if (role == 'admin') {
-                                this.$router.push({
-                                    path: '/admin'
-                                });
-                            }
                         } else {
                             this.$message.error(res.data.message);
                         }

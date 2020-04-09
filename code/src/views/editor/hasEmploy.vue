@@ -71,6 +71,10 @@ export default {
             this.modalVisible = false;
         },
         handleOk() {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             if (this.remarkText.trim() == '') {
                 this.$message.info('退回意见不能为空');
                 return;
@@ -87,16 +91,32 @@ export default {
                 });
         },
         toDetail(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无查看权限');
+                return;
+            }
             this.$router.push({ path: '/editor/paperdetail', query: { id: item.pid } });
         },
         pass(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.changeState(item.pid, 5);
         },
         returnBack(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.item = item;
             this.modalVisible = true;
         },
         changeState(id, state, remark = '') {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.$axios
                 .post(`${this.$backEnd}/api/paper/changeState`, { pid: id, state: state, remark })
                 .then(res => {
@@ -118,6 +138,13 @@ export default {
                 .catch(err => {
                     console.log(err);
                 });
+        },
+        checkPower() {
+            if (this.$store.state.power.thirdCheck == 1) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 };

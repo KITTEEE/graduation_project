@@ -87,16 +87,32 @@ export default {
                 });
         },
         toDetail(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.$router.push({ path: '/editor/paperdetail', query: { id: item.pid } });
         },
         pass(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.changeState(item.pid, 4);
         },
         returnBack(item) {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.item = item;
             this.modalVisible = true;
         },
         changeState(id, state, remark = '') {
+            if (!this.checkPower()) {
+                this.$message.info('暂无审核权限');
+                return;
+            }
             this.$axios
                 .post(`${this.$backEnd}/api/paper/changeState`, { pid: id, state: state, remark })
                 .then(res => {
@@ -118,6 +134,13 @@ export default {
                 .catch(err => {
                     console.log(err);
                 });
+        },
+        checkPower() {
+            if (this.$store.state.power.secondCheck == 1) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 };

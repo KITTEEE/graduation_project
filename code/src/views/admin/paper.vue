@@ -31,7 +31,7 @@
         <div style="margin-bottom:30px;margin-top:30px">
             <a-button type="primary" icon="plus" @click="showNew">新增稿件</a-button>
         </div>
-        <a-table :columns="columns" :rowKey="record => record.pid" :dataSource="dataList">
+        <a-table :columns="columns" :rowKey="(record) => record.pid" :dataSource="dataList">
             <span slot="state" slot-scope="text">
                 <span>{{ stateFilter(text) }}</span>
             </span>
@@ -100,8 +100,8 @@
                         v-decorator="[
                             'uid',
                             {
-                                rules: [{ required: true, message: '所属用户ID不能为空' }]
-                            }
+                                rules: [{ required: true, message: '所属用户ID不能为空' }],
+                            },
                         ]"
                         placeholder="投稿人ID"
                     />
@@ -111,8 +111,8 @@
                         v-decorator="[
                             'author',
                             {
-                                rules: [{ required: true, message: '标题不能为空' }]
-                            }
+                                rules: [{ required: true, message: '标题不能为空' }],
+                            },
                         ]"
                         placeholder="稿件标题"
                     />
@@ -122,19 +122,19 @@
                         v-decorator="[
                             'title',
                             {
-                                rules: [{ required: true, message: '作者不能为空' }]
-                            }
+                                rules: [{ required: true, message: '作者不能为空' }],
+                            },
                         ]"
                         placeholder="稿件作者"
                     />
                 </a-form-item>
-                <a-form-item label="概述" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
-                    <a-input
+                <a-form-item label="概述" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
+                    <a-textarea
                         v-decorator="[
                             'overview',
                             {
-                                rules: [{ required: true, message: '概述不能为空' }]
-                            }
+                                rules: [{ required: true, message: '概述不能为空' }],
+                            },
                         ]"
                         placeholder="稿件概述"
                     />
@@ -144,9 +144,6 @@
                 </a-form-item>
                 <a-form-item label="联系方式" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-input v-decorator="['concat']" placeholder="稿件作者的联系方式" />
-                </a-form-item>
-                <a-form-item label="概述" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
-                    <a-input v-decorator="['overview']" placeholder="稿件概述" />
                 </a-form-item>
                 <a-form-item label="上传稿件" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-upload-dragger
@@ -179,17 +176,17 @@ const columns = [
     {
         title: '稿件id',
         dataIndex: 'pid',
-        width: '10%'
+        width: '10%',
     },
     {
         title: '稿件标题',
         dataIndex: 'title',
-        width: '20%'
+        width: '20%',
     },
     {
         title: '投递时间',
         dataIndex: 'time',
-        width: '20%'
+        width: '20%',
     },
     {
         title: '稿件状态',
@@ -199,36 +196,36 @@ const columns = [
         filters: [
             {
                 text: '未投递',
-                value: '0'
+                value: '0',
             },
             {
                 text: '待初审',
-                value: '1'
+                value: '1',
             },
             {
                 text: '已退回',
-                value: '2'
+                value: '2',
             },
             {
                 text: '待外审',
-                value: '3'
+                value: '3',
             },
             {
                 text: '待录用',
-                value: '4'
+                value: '4',
             },
             {
                 text: '已录用',
-                value: '5'
-            }
+                value: '5',
+            },
         ],
-        onFilter: (value, record) => record.state.toString() === value
+        onFilter: (value, record) => record.state.toString() === value,
     },
     {
         title: '操作',
         key: 'action',
-        scopedSlots: { customRender: 'action' }
-    }
+        scopedSlots: { customRender: 'action' },
+    },
 ];
 export default {
     data() {
@@ -245,11 +242,11 @@ export default {
             newVisible: false,
             editPaper: '',
             fileList: [],
-            editFile: ''
+            editFile: '',
         };
     },
     created() {
-        this.$axios.get(`${this.$backEnd}/api/admin/paperlist?`).then(res => {
+        this.$axios.get(`${this.$backEnd}/api/admin/paperlist?`).then((res) => {
             this.list = res.data.data;
             this.dataList = res.data.data;
         });
@@ -260,7 +257,7 @@ export default {
                 this.$message.info('请输入要查询的用户id');
                 return;
             }
-            this.dataList = this.list.filter(item => {
+            this.dataList = this.list.filter((item) => {
                 return item[this.searchType].toString().search(`${this.searchText}`) !== -1;
             });
         },
@@ -273,7 +270,6 @@ export default {
             this.newForm.validateFields({ first: true, force: true }, (err, value) => {
                 if (!err) {
                     console.log(value);
-                    // 添加用户接口
                 }
             });
         },
@@ -281,7 +277,7 @@ export default {
             console.log(paper.pid);
             this.$confirm({
                 title: '确定删除该用户吗？',
-                content: h => <div style="color:red;">执行此操作后，将无法恢复数据</div>,
+                content: (h) => <div style="color:red;">执行此操作后，将无法恢复数据</div>,
                 okText: '确定',
                 cancelText: '取消',
                 onOk() {
@@ -291,7 +287,7 @@ export default {
                 onCancel() {
                     console.log('Cancel');
                 },
-                class: 'test'
+                class: 'test',
             });
         },
         showEdit(paper) {
@@ -308,7 +304,7 @@ export default {
                     uid,
                     overview,
                     file,
-                    concat
+                    concat,
                 };
                 this.editForm.setFieldsValue(obj);
             });
@@ -377,12 +373,12 @@ export default {
             }, 100);
             await this.$axios
                 .post(`${this.$backEnd}/api/paper/upload`, formData)
-                .then(res => {
+                .then((res) => {
                     this.$message.success(`上传成功`);
                     progress == 100;
                     options.onSuccess();
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
@@ -391,8 +387,8 @@ export default {
         },
         handleChange({ fileList }) {
             this.fileList = fileList;
-        }
-    }
+        },
+    },
 };
 </script>
 <style lang="less">

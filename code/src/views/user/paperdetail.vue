@@ -118,19 +118,46 @@ export default {
             }
             console.log(this.current);
         },
-        editPaper() {
+        backPaper() {
+            const _this = this;
             this.$confirm({
                 title: '您确定要撤回该稿件吗',
                 content: '撤回后的稿件将变为草稿状态',
                 okText: '撤回稿件',
                 cancelText: '取消',
                 onOk() {
-                    this.$message('撤回成功');
+                    _this
+                        .changeToDeliver()
+                        .then(res => {
+                            console.log(res);
+                            _this.$message.success('撤回成功');
+                        })
+                        .catch(err => {
+                            _this.$message.errno('撤回失败，请重试');
+                        });
                 },
                 onCancel() {}
             });
         },
-        backPaper() {}
+        editPaper() {
+            this.$router.push({
+                path: '/user/delivery',
+                query: { item: this.detailInfo }
+            });
+        },
+        changeToDeliver() {
+            return new Promise((reslove, reject) => {
+                this.$axios
+                    .post(`${this.$backEnd}/api/paper/changeState`, { pid: this.pid, state: 0, remark: '' })
+                    .then(res => {
+                        console.log(res);
+                        reslove(res);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            });
+        }
     }
 };
 </script>
