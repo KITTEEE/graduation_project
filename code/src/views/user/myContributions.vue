@@ -10,7 +10,7 @@
                             <a-list-item-meta :description="item.overview ? item.overview : '暂无简介'">
                                 <a class="item-title" slot="title" @click="toDetail(item)">{{ item.title }}</a>
                             </a-list-item-meta>
-                            <div style="margin-right:20px">{{ item.time }}</div>
+                            <div style="margin-right: 20px;">{{ item.time }}</div>
                             <div>状态: {{ item.state | state }}</div>
                         </a-list-item>
                     </a-list>
@@ -27,7 +27,7 @@ const tabs = [
     { name: '待外审', state: 3 },
     { name: '待录用', state: 4 },
     { name: '已录用', state: 5 },
-    { name: '已退回', state: 2 }
+    { name: '已退回', state: 2 },
 ];
 export default {
     data() {
@@ -36,34 +36,34 @@ export default {
             currState: 'all',
             loading: true,
             activeKey: '',
-            allPaperList: ''
+            allPaperList: '',
         };
     },
     computed: {
         ...mapState({
-            userInfo: state => state.userInfo
+            userInfo: (state) => state.userInfo,
         }),
         paperList() {
             if (this.currState == 'all') {
                 return this.allPaperList;
             } else {
-                let list = this.allPaperList.filter(item => {
+                let list = this.allPaperList.filter((item) => {
                     return item.state == this.currState;
                 });
                 return list;
             }
-        }
+        },
     },
     async created() {
         if (!this.$store.state.userInfo) {
             let uid = localStorage.getItem('uid');
-            await this.$axios.get(`${this.$backEnd}/api/users/info?uid=${uid}`).then(res => {
+            await this.$axios.get(`${this.$backEnd}/api/users/info?uid=${uid}`).then((res) => {
                 this.setUserInfo(res.data);
                 // this.$store.commit('setUserInfo', res.data);
                 console.log('setUserInfo', res.data);
             });
         }
-        this.$axios.get(`${this.$backEnd}/api/paper/list?uid=${this.$store.state.userInfo.uid}`).then(res => {
+        this.$axios.get(`${this.$backEnd}/api/paper/list?uid=${this.$store.state.userInfo.uid}`).then((res) => {
             this.allPaperList = res.data;
             this.loading = false;
         });
@@ -75,25 +75,25 @@ export default {
         },
         toDetail(item) {
             this.$router.push({ path: '/user/paperdetail', query: { id: item.pid } });
-        }
+        },
     },
     filters: {
         state(state) {
             console.log(typeof state);
             switch (state) {
-                case 1:
+                case '1':
                     return '待初审';
-                case 2:
+                case '2':
                     return '已退回';
-                case 3:
+                case '3':
                     return '待外审';
-                case 4:
+                case '4':
                     return '待录用';
-                case 5:
+                case '5':
                     return '已录用';
             }
-        }
-    }
+        },
+    },
 };
 </script>
 <style lang="less">

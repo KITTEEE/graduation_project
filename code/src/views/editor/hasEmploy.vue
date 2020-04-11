@@ -16,7 +16,6 @@
                     <div slot="actions">
                         <a-dropdown>
                             <a-menu slot="overlay">
-                                <a-menu-item @click="pass(item)"><a>通过审核</a></a-menu-item>
                                 <a-menu-item @click="returnBack(item)"><a>退回稿件</a></a-menu-item>
                             </a-menu>
                             <a>更多<a-icon type="down"/></a>
@@ -53,6 +52,7 @@
     </div>
 </template>
 <script>
+import { mapActions } from 'vuex';
 export default {
     data() {
         return {
@@ -60,18 +60,19 @@ export default {
             loading: true,
             remarkText: '',
             list: [],
-            item: ''
+            item: '',
         };
     },
     created() {
         this.getList();
     },
     methods: {
+        ...mapActions(['getPower']),
         modalClose() {
             this.modalVisible = false;
         },
-        handleOk() {
-            if (!this.checkPower()) {
+        async handleOk() {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
@@ -80,73 +81,78 @@ export default {
                 return;
             }
             this.$axios
-                .post(`${this.$backEnd}/api/paper/changeState`, { pid: this.item.pid, state: 2, remark: this.remarkText })
-                .then(res => {
+                .post(`${this.$backEnd}/api/paper/returnBack`, {
+                    pid: this.item.pid,
+                    laststate: this.item.state,
+                    remark: this.remarkText,
+                })
+                .then((res) => {
                     this.$message.success(res.data.message);
                     this.getList();
                     this.modalVisible = false;
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
-        toDetail(item) {
-            if (!this.checkPower()) {
-                this.$message.info('暂无查看权限');
+        async toDetail(item) {
+            if (!(await this.checkPower())) {
+                this.$message.info('暂无审核权限');
                 return;
             }
             this.$router.push({ path: '/editor/paperdetail', query: { id: item.pid } });
         },
-        pass(item) {
-            if (!this.checkPower()) {
+        async pass(item) {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.changeState(item.pid, 5);
         },
-        returnBack(item) {
-            if (!this.checkPower()) {
+        async returnBack(item) {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.item = item;
             this.modalVisible = true;
         },
-        changeState(id, state, remark = '') {
-            if (!this.checkPower()) {
+        async changeState(id, state, remark = '') {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.$axios
                 .post(`${this.$backEnd}/api/paper/changeState`, { pid: id, state: state, remark })
-                .then(res => {
+                .then((res) => {
                     this.$message.success(res.data.message);
                     this.getList();
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
         getList() {
             this.$axios
                 .get(`${this.$backEnd}/api/paper/editList?state=5`)
-                .then(res => {
+                .then((res) => {
                     console.log(res);
                     this.list = res.data;
                     this.loading = false;
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
-        checkPower() {
-            if (this.$store.state.power.thirdCheck == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+        async checkPower() {
+            const uid = this.$store.state.power.uid;
+            console.log('power', this.$store.state.power);
+            let result = await this.getPower(uid).then((res) => {
+                return this.$store.state.power.thirdCheck == 1;
+            });
+            return result;
+        },
+    },
 };
 </script>
 <style lang="less">

@@ -34,21 +34,8 @@
                 <div class="detail-item">
                     <a-icon type="safety" style="margin-right:10px" />
                     <span class="item-label">审核权限:</span>
-                    <span class="item-content">{{ userInfo.occupation == 'editor' ? '初审' : '初审、外审、录用' }}</span>
+                    <span class="item-content">{{ calPower(power) }}</span>
                 </div>
-                <!-- <div class="paper-list">
-                    <div class="list-title">已审核稿件</div>
-                    <a-list class="demo-loadmore-list" itemLayout="horizontal" :dataSource="data">
-                        <a-list-item slot="renderItem" slot-scope="item" v-show="item.state == 5">
-                            <a-list-item-meta description="Ant Design, a design language for background applications">
-                                <div class="item-title" slot="title">
-                                    {{ item.name }}
-                                </div>
-                            </a-list-item-meta>
-                            <div style="margin-right:20px">{{ item.time }}</div>
-                        </a-list-item>
-                    </a-list>
-                </div> -->
             </div>
         </div>
         <a-modal title="上传头像" :visible="visible" @ok="handleOk" @cancel="handleCancel" cancelText="取消" okText="确认更换">
@@ -70,21 +57,26 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 export default {
     data() {
         return {
             fileList: [],
             visible: false,
-            avatar: ''
+            avatar: '',
         };
     },
     computed: {
         ...mapState({
-            userInfo: state => state.userInfo
-        })
+            userInfo: (state) => state.userInfo,
+            power: (state) => state.power,
+        }),
+    },
+    async created() {
+        await this.getPower(this.userInfo.uid);
     },
     methods: {
+        ...mapActions(['getPower']),
         showModal() {
             this.visible = true;
         },
@@ -103,13 +95,13 @@ export default {
             }, 100);
             await this.$axios
                 .post(`${this.$backEnd}/api/paper/upload`, formData)
-                .then(res => {
+                .then((res) => {
                     console.log(this.fileList);
                     this.$message.success(`上传成功`);
                     progress == 100;
                     options.onSuccess();
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
@@ -119,14 +111,14 @@ export default {
                 console.log(params);
                 this.$axios
                     .post(`${this.$backEnd}/api/users/uploadAvatar`, params)
-                    .then(res => {
+                    .then((res) => {
                         this.$message.success(res.data.message);
-                        this.$axios.get(`${this.$backEnd}/api/users/info?uid=${this.userInfo.uid}`).then(res => {
+                        this.$axios.get(`${this.$backEnd}/api/users/info?uid=${this.userInfo.uid}`).then((res) => {
                             this.$store.commit('setUserInfo', res.data);
                             this.visible = false;
                         });
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         this.$message.error(err.data.message);
                     });
             } else {
@@ -145,8 +137,25 @@ export default {
         },
         toSetting() {
             this.$router.push({ path: '/editor/setting' });
-        }
-    }
+        },
+        calPower(power) {
+            const { firstCheck, secondCheck, thirdCheck } = power;
+            let arr = [];
+            if (firstCheck == 1) {
+                arr.push('初审');
+            }
+            if (secondCheck == 1) {
+                arr.push('外审');
+            }
+            if (thirdCheck == 1) {
+                arr.push('录用');
+            }
+            console.log(arr);
+            let str = arr.join('、');
+            console.log(str);
+            return str;
+        },
+    },
 };
 </script>
 <style lang="less">

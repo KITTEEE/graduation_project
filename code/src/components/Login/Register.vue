@@ -11,8 +11,8 @@
                         'username',
                         {
                             rules: [{ required: true, message: '用户名不能为空' }],
-                            validateTrigger: 'change'
-                        }
+                            validateTrigger: 'change',
+                        },
                     ]"
                 >
                     <a-icon slot="prefix" type="user" :style="{ color: 'rgba(0,0,0,.25)' }" />
@@ -28,9 +28,9 @@
                     v-decorator="[
                         'password',
                         {
-                            rules: [{ required: true, message: '请输入密码' }, { validator: this.handlePasswordCheck }],
-                            validateTrigger: ['change', 'blur']
-                        }
+                            rules: [{ required: true, message: '请输入密码' }, { validator: this.handlePasswordLevel }],
+                            validateTrigger: ['change', 'blur'],
+                        },
                     ]"
                 ></a-input>
             </a-form-item>
@@ -44,8 +44,8 @@
                         'password2',
                         {
                             rules: [{ required: true, message: '请输入密码' }, { validator: this.handlePasswordCheck2 }],
-                            validateTrigger: ['change', 'blur']
-                        }
+                            validateTrigger: ['change', 'blur'],
+                        },
                     ]"
                 ></a-input>
             </a-form-item>
@@ -79,25 +79,25 @@
 // import { getSmsCaptcha } from "@/api/login";
 const options = [
     { label: '投稿人', value: 'contributor' },
-    { label: '审稿人', value: 'editor' }
+    { label: '审稿人', value: 'editor' },
 ];
 const levelNames = {
     0: '低',
     1: '低',
     2: '中',
-    3: '强'
+    3: '强',
 };
 const levelClass = {
     0: 'error',
     1: 'error',
     2: 'warning',
-    3: 'success'
+    3: 'success',
 };
 const levelColor = {
     0: '#ff0000',
     1: '#ff0000',
     2: '#ff7e05',
-    3: '#52c41a'
+    3: '#52c41a',
 };
 export default {
     name: 'Register',
@@ -114,9 +114,9 @@ export default {
                 passwordLevel: 0,
                 passwordLevelChecked: false,
                 percent: 10,
-                progressColor: '#FF0000'
+                progressColor: '#FF0000',
             },
-            registerBtn: false
+            registerBtn: false,
         };
     },
     computed: {
@@ -128,13 +128,17 @@ export default {
         },
         passwordLevelColor() {
             return levelColor[this.state.passwordLevel];
-        }
+        },
     },
     methods: {
         onRadioChange(e) {
             console.log(this.radioValue);
         },
         handlePasswordLevel(rule, value, callback) {
+            if (value.length < 6) {
+                callback(new Error('至少六位密码'));
+                return;
+            }
             let level = 0;
 
             // 判断这个字符串中有没有数字
@@ -195,7 +199,7 @@ export default {
             const {
                 form: { validateFields },
                 state,
-                $router
+                $router,
             } = this;
             // console.log(this.form.getFieldsValue());
             validateFields({ first: true, force: true }, (err, values) => {
@@ -204,7 +208,7 @@ export default {
                     this.registerBtn = true;
                     this.$axios
                         .post(`${this.$backEnd}/api/users/register`, values)
-                        .then(res => {
+                        .then((res) => {
                             console.log('注册接口', res);
                             this.registerBtn = false;
                             if (res.data.errno == 0) {
@@ -216,13 +220,13 @@ export default {
                                     onOk: () => {
                                         console.log('ok');
                                         this.$router.push({ name: 'login' });
-                                    }
+                                    },
                                 });
                             } else if (res.data.errno == -1) {
                                 this.$message.error(res.data.message);
                             }
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             console.log(err);
                         })
                         .finally(() => {
@@ -232,7 +236,7 @@ export default {
                         });
                 }
             });
-        }
+        },
         // requestFailed(err) {
         //     this.$notification['error']({
         //         message: '错误',
@@ -245,8 +249,8 @@ export default {
     watch: {
         'state.passwordLevel'(val) {
             console.log(val);
-        }
-    }
+        },
+    },
 };
 </script>
 <style lang="less">

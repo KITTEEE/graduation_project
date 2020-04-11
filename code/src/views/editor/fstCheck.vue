@@ -53,6 +53,7 @@
     </div>
 </template>
 <script>
+import { mapActions } from 'vuex';
 export default {
     data() {
         return {
@@ -60,13 +61,14 @@ export default {
             loading: true,
             remarkText: '',
             list: [],
-            item: ''
+            item: '',
         };
     },
     created() {
         this.getList();
     },
     methods: {
+        ...mapActions(['getPower']),
         modalClose() {
             this.modalVisible = false;
         },
@@ -76,73 +78,80 @@ export default {
                 return;
             }
             this.$axios
-                .post(`${this.$backEnd}/api/paper/changeState`, { pid: this.item.pid, state: 2, remark: this.remarkText })
-                .then(res => {
+                .post(`${this.$backEnd}/api/paper/returnBack`, {
+                    pid: this.item.pid,
+                    laststate: this.item.state,
+                    remark: this.remarkText,
+                })
+                .then((res) => {
                     this.$message.success(res.data.message);
                     this.getList();
                     this.modalVisible = false;
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
-        toDetail(item) {
-            if (!this.checkPower()) {
+        async toDetail(item) {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.$router.push({ path: '/editor/paperdetail', query: { id: item.pid } });
         },
-        pass(item) {
-            if (!this.checkPower()) {
+        async pass(item) {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.changeState(item.pid, 3);
         },
-        returnBack(item) {
-            if (!this.checkPower()) {
+        async returnBack(item) {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.item = item;
             this.modalVisible = true;
         },
-        changeState(id, state, remark = '') {
-            if (!this.checkPower()) {
+        async changeState(id, state, remark = '') {
+            if (!(await this.checkPower())) {
                 this.$message.info('暂无审核权限');
                 return;
             }
             this.$axios
                 .post(`${this.$backEnd}/api/paper/changeState`, { pid: id, state: state, remark })
-                .then(res => {
+                .then((res) => {
                     this.$message.success(res.data.message);
                     this.getList();
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
         getList() {
             this.$axios
                 .get(`${this.$backEnd}/api/paper/editList?state=1`)
-                .then(res => {
+                .then((res) => {
                     console.log(res);
                     this.list = res.data;
                     this.loading = false;
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
-        checkPower() {
-            if (this.$store.state.power.firstCheck == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+        async checkPower() {
+            const uid = this.$store.state.power.uid;
+            console.log('power', this.$store.state.power);
+            let result = await this.getPower(uid).then((res) => {
+                console.log(this.$store.state.power.firstCheck == 1);
+                return this.$store.state.power.firstCheck == 1;
+            });
+            console.log(result);
+            return result;
+        },
+    },
 };
 </script>
 <style lang="less">

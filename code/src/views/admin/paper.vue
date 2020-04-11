@@ -64,7 +64,22 @@
                     </a-col>
                     <a-col :md="12" :sm="24">
                         <a-form-item label="稿件状态" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
-                            <a-input v-decorator="['state']" />
+                            <a-select
+                                placeholder="请选择"
+                                v-decorator="[
+                                    'state',
+                                    {
+                                        rules: [{ required: true, message: '请选择稿件状态' }],
+                                    },
+                                ]"
+                            >
+                                <a-select-option value="0">未投递</a-select-option>
+                                <a-select-option value="1">待初审</a-select-option>
+                                <a-select-option value="2">已退回</a-select-option>
+                                <a-select-option value="3">待外审</a-select-option>
+                                <a-select-option value="4">待录用</a-select-option>
+                                <a-select-option value="5">已录用</a-select-option>
+                            </a-select>
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -81,7 +96,7 @@
                 <a-divider orientation="left">用户相关</a-divider>
                 <a-row :gutter="48">
                     <a-col :md="12" :sm="24">
-                        <a-form-item label="所属用户" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
+                        <a-form-item label="所属用户ID" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
                             <a-input v-decorator="['uid']" />
                         </a-form-item>
                     </a-col>
@@ -109,7 +124,7 @@
                 <a-form-item label="标题" :label-col="{ span: 5 }" :wrapper-col="{ span: 15 }">
                     <a-input
                         v-decorator="[
-                            'author',
+                            'title',
                             {
                                 rules: [{ required: true, message: '标题不能为空' }],
                             },
@@ -120,7 +135,7 @@
                 <a-form-item label="作者" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-input
                         v-decorator="[
-                            'title',
+                            'author',
                             {
                                 rules: [{ required: true, message: '作者不能为空' }],
                             },
@@ -144,6 +159,24 @@
                 </a-form-item>
                 <a-form-item label="联系方式" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-input v-decorator="['concat']" placeholder="稿件作者的联系方式" />
+                </a-form-item>
+                <a-form-item label="稿件状态" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
+                    <a-select
+                        placeholder="请选择"
+                        v-decorator="[
+                            'state',
+                            {
+                                rules: [{ required: true, message: '请选择稿件状态' }],
+                            },
+                        ]"
+                    >
+                        <a-select-option value="0">未投递</a-select-option>
+                        <a-select-option value="1">待初审</a-select-option>
+                        <a-select-option value="2">已退回</a-select-option>
+                        <a-select-option value="3">待外审</a-select-option>
+                        <a-select-option value="4">待录用</a-select-option>
+                        <a-select-option value="5">已录用</a-select-option>
+                    </a-select>
                 </a-form-item>
                 <a-form-item label="上传稿件" :label-col="{ span: 5 }" :wrapper-col="{ span: 10 }">
                     <a-upload-dragger
@@ -227,6 +260,7 @@ const columns = [
         scopedSlots: { customRender: 'action' },
     },
 ];
+const stateList = ['未投递', '待初审', '已退回', '待外审', '待录用', '已录用'];
 export default {
     data() {
         return {
@@ -243,15 +277,20 @@ export default {
             editPaper: '',
             fileList: [],
             editFile: '',
+            editState: '0',
         };
     },
     created() {
-        this.$axios.get(`${this.$backEnd}/api/admin/paperlist?`).then((res) => {
-            this.list = res.data.data;
-            this.dataList = res.data.data;
-        });
+        this.getPaperList();
     },
     methods: {
+        getPaperList() {
+            this.$axios.get(`${this.$backEnd}/api/admin/paperlist?`).then((res) => {
+                this.list = res.data.data;
+                console.log(this.list);
+                this.dataList = res.data.data;
+            });
+        },
         searchPaper() {
             if (!this.searchText) {
                 this.$message.info('请输入要查询的用户id');
@@ -270,6 +309,22 @@ export default {
             this.newForm.validateFields({ first: true, force: true }, (err, value) => {
                 if (!err) {
                     console.log(value);
+                    if (this.fileList.length == 0) {
+                        this.$message.info('请上传稿件');
+                        return;
+                    }
+                    let obj = { file: this.fileList[0].name };
+                    Object.assign(value, obj);
+                    this.$axios.post(`${this.$backEnd}/api/admin/addPaper`, value).then((res) => {
+                        console.log(res);
+                        if (res.data.errno == 0) {
+                            this.$message.success(res.data.message);
+                            this.newVisible = false;
+                            this.getPaperList();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    });
                 }
             });
         },
@@ -280,9 +335,16 @@ export default {
                 content: (h) => <div style="color:red;">执行此操作后，将无法恢复数据</div>,
                 okText: '确定',
                 cancelText: '取消',
-                onOk() {
+                onOk: () => {
                     console.log('OK');
-                    this.$message.success('操作成功');
+                    this.$axios.get(`${this.$backEnd}/api/admin/deletePaper?pid=${paper.pid}`).then((res) => {
+                        if (res.data.errno == 0) {
+                            this.$message.success(res.data.message);
+                            this.getPaperList();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    });
                 },
                 onCancel() {
                     console.log('Cancel');
@@ -300,10 +362,8 @@ export default {
                     pid,
                     title,
                     author,
-                    state,
                     uid,
-                    overview,
-                    file,
+                    state,
                     concat,
                 };
                 this.editForm.setFieldsValue(obj);
@@ -313,6 +373,16 @@ export default {
             this.editForm.validateFields({ first: true, force: true }, (err, value) => {
                 if (!err) {
                     console.log(value);
+                    this.$axios.post(`${this.$backEnd}/api/admin/editPaper`, value).then((res) => {
+                        console.log(res);
+                        if (res.data.errno == 0) {
+                            this.$message.success(res.data.message);
+                            this.editVisible = false;
+                            this.getPaperList();
+                        } else {
+                            this.$message.error(res.data.message);
+                        }
+                    });
                 }
             });
         },
@@ -320,28 +390,11 @@ export default {
             this.newVisible = true;
         },
         stateFilter(state) {
-            switch (state) {
-                case 0:
-                    return '未投递';
-                    break;
-                case 1:
-                    return '待初审';
-                    break;
-                case 2:
-                    return '已退回';
-                    break;
-                case 3:
-                    return '待外审';
-                    break;
-                case 4:
-                    return '待录用';
-                    break;
-                case 5:
-                    return '已录用';
-                    break;
-                default:
-                    break;
+            const str = stateList[state];
+            if (!str) {
+                return '';
             }
+            return str;
         },
         beforeUpload(file, fileList) {
             const reg = /\.(doc|docx|pdf|caj)(\?.*)?$/;
